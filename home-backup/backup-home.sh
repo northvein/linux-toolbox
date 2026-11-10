@@ -156,8 +156,11 @@ pick_destination() {
     done
     local choice
     read -rp "Choose drive [1-${#mounts[@]}]: " choice
-    [[ $choice =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#mounts[@]} )) || die "Invalid choice."
-    DEST="${mounts[choice - 1]}"
+    if [[ $choice =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#mounts[@]} )); then
+        DEST="${mounts[choice - 1]}"
+    else
+        die "Invalid choice."
+    fi
 }
 
 check_destination() {
@@ -178,7 +181,7 @@ do_backup() {
 
     local outdir="$DEST/$BACKUP_SUBDIR"
     local stamp; stamp=$(date '+%Y%m%d-%H%M%S')
-    local name="$(hostname -s)-${USER}-${stamp}.${EXT}.gpg"
+    local name; name="$(hostname -s)-${USER}-${stamp}.${EXT}.gpg"
     local out="$outdir/$name"
     local fstype; fstype=$(findmnt -rn -o FSTYPE --target "$DEST")
 
